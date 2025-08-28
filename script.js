@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- THEME SWITCHER LOGIC ---
-  // ... (Giữ nguyên, không thay đổi)
-  const themeToggle = document.getElementById("theme-toggle");
   const body = document.body;
+
+  // --- THEME SWITCHER LOGIC ---
+  const themeToggle = document.getElementById("theme-toggle");
   const applyTheme = (theme) => {
     if (theme === "dark") {
       body.classList.add("dark-mode");
@@ -30,8 +30,101 @@ document.addEventListener("DOMContentLoaded", () => {
     saveThemePreference(newTheme);
   });
 
+  // --- NAVIGATION MENU LOGIC ---
+  const menuToggleBtn = document.getElementById("menu-toggle-btn");
+  const navMenu = document.getElementById("nav-menu");
+  const overlay = document.getElementById("overlay");
+  const openMenu = () => body.classList.add("nav-open");
+  const closeMenu = () => body.classList.remove("nav-open");
+  menuToggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    body.classList.contains("nav-open") ? closeMenu() : openMenu();
+  });
+
+  // --- SCROLL-TO-TOP BUTTON LOGIC ---
+  const scrollToTopBtn = document.getElementById("scroll-to-top-btn");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      scrollToTopBtn.classList.add("visible");
+    } else {
+      scrollToTopBtn.classList.remove("visible");
+    }
+  });
+  scrollToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // --- HISTORY PANEL LOGIC ---
+  const HISTORY_KEY = "datemate_history";
+  let history = [];
+  const historyToggleBtn = document.getElementById("history-toggle-btn");
+  const historyPanel = document.getElementById("history-panel");
+  const historyList = document.getElementById("history-list");
+  const clearHistoryBtn = document.getElementById("clear-history-btn");
+  const openHistory = () => body.classList.add("history-open");
+  const closeHistory = () => body.classList.remove("history-open");
+  const renderHistory = () => {
+    historyList.innerHTML = "";
+    if (history.length === 0) {
+      historyList.innerHTML = "<li>Chưa có lịch sử nào.</li>";
+      return;
+    }
+    history.forEach((item) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${item.type}</strong><span>${item.result.replace(
+        /\n/g,
+        "<br>"
+      )}</span>`;
+      historyList.appendChild(li);
+    });
+  };
+  const saveHistory = () => {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  };
+  const loadHistory = () => {
+    const savedHistory = localStorage.getItem(HISTORY_KEY);
+    if (savedHistory) {
+      history = JSON.parse(savedHistory);
+    }
+    renderHistory();
+  };
+  const addToHistory = (type, result) => {
+    const newItem = { type, result, timestamp: new Date().toISOString() };
+    history.unshift(newItem);
+    if (history.length > 20) {
+      history = history.slice(0, 20);
+    }
+    saveHistory();
+    renderHistory();
+  };
+  historyToggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    body.classList.contains("history-open") ? closeHistory() : openHistory();
+  });
+  clearHistoryBtn.addEventListener("click", () => {
+    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử?")) {
+      history = [];
+      saveHistory();
+      renderHistory();
+    }
+  });
+
+  // --- SHARED CLOSE LOGIC FOR PANELS ---
+  navMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+  overlay.addEventListener("click", () => {
+    closeMenu();
+    closeHistory();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (body.classList.contains("nav-open")) closeMenu();
+      if (body.classList.contains("history-open")) closeHistory();
+    }
+  });
+
   // --- UI ENHANCEMENT & VALIDATION ---
-  // ... (Giữ nguyên, không thay đổi)
   const autoFormatDateInput = (event) => {
     const input = event.target;
     let value = input.value.replace(/\D/g, "");
@@ -58,7 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .forEach((input) => input.addEventListener("input", autoFormatDateInput));
 
   // --- HELPER FUNCTIONS ---
-  // ... (Giữ nguyên các hàm helper cũ)
   const parseDateString = (dateStr) => {
     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     const parts = dateStr.match(regex);
@@ -91,11 +183,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const errorElement = parent.querySelector(".error-message");
     if (errorElement) errorElement.textContent = "";
   };
-  const displayResult = (resultElement, message, isError = false) => {
+  const displayResult = (
+    resultElement,
+    message,
+    isError = false,
+    type = ""
+  ) => {
     const textSpan = resultElement.querySelector(".result-text");
     textSpan.innerHTML = message.replace(/\n/g, "<br>");
     resultElement.className = "result visible";
-    if (isError) resultElement.classList.add("error");
+    if (isError) {
+      resultElement.classList.add("error");
+    } else if (type) {
+      addToHistory(type, message);
+    }
   };
   const hideResult = (resultElement) => {
     if (resultElement) {
@@ -105,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // --- ELEMENT SELECTION (Thêm các element mới) ---
+  // --- ELEMENT SELECTION ---
   const startDateEl = document.getElementById("startDate"),
     endDateEl = document.getElementById("endDate"),
     calcDifferenceBtn = document.getElementById("calcDifferenceBtn"),
@@ -130,14 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const yearInputEl = document.getElementById("yearInput"),
     leapYearBtn = document.getElementById("leapYearBtn"),
     leapYearResult = document.getElementById("leapYearResult");
-  // *** NEW ELEMENTS FOR WORK DAYS ***
   const workStartDateEl = document.getElementById("workStartDate"),
     workEndDateEl = document.getElementById("workEndDate"),
     holidaysEl = document.getElementById("holidays"),
     calcWorkDaysBtn = document.getElementById("calcWorkDaysBtn"),
     workDaysResult = document.getElementById("workDaysResult");
 
-  // --- GENERAL EVENT LISTENERS (Cập nhật nút Clear) ---
+  // --- GENERAL EVENT LISTENERS ---
   document.querySelectorAll(".btn-today").forEach((button) =>
     button.addEventListener("click", () => {
       const targetInput = document.getElementById(button.dataset.target);
@@ -153,7 +253,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".btn-clear").forEach((button) => {
     button.addEventListener("click", () => {
       const card = button.closest(".card");
-      // UPDATED: Thêm 'textarea' vào selector
       card.querySelectorAll("input, select, textarea").forEach((el) => {
         if (el.type === "number") el.value = "1";
         else if (el.tagName.toLowerCase() === "select") el.selectedIndex = 0;
@@ -194,8 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // --- FEATURE LOGIC ---
-
-  // *** NEW FEATURE: WORKING DAYS CALCULATOR ***
   calcWorkDaysBtn.addEventListener("click", () => {
     hideResult(workDaysResult);
     let isValid = true;
@@ -210,47 +307,40 @@ document.addEventListener("DOMContentLoaded", () => {
       isValid = false;
     }
     if (!isValid) return;
-
     if (start > end) {
       showError(workEndDateEl, "Ngày kết thúc phải sau ngày bắt đầu.");
       return;
     }
-
-    // Xử lý danh sách ngày lễ
     const holidayStrings = holidaysEl.value
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line.length > 0);
-
     const holidaySet = new Set();
     for (const str of holidayStrings) {
       const holidayDate = parseDateString(str);
       if (holidayDate) {
-        // Chuẩn hóa ngày về dạng YYYY-MM-DD để so sánh dễ dàng, tránh lỗi timezone
         holidaySet.add(holidayDate.toISOString().split("T")[0]);
       }
     }
-
     let workingDays = 0;
     const currentDate = new Date(start);
-
     while (currentDate <= end) {
-      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+      const dayOfWeek = currentDate.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       const isHoliday = holidaySet.has(currentDate.toISOString().split("T")[0]);
-
       if (!isWeekend && !isHoliday) {
         workingDays++;
       }
-
-      // Chuyển sang ngày tiếp theo
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
-    displayResult(workDaysResult, `Có tổng cộng ${workingDays} ngày làm việc.`);
+    displayResult(
+      workDaysResult,
+      `Có tổng cộng ${workingDays} ngày làm việc.`,
+      false,
+      "Tính Ngày Làm Việc"
+    );
   });
 
-  // ... (Toàn bộ logic của các feature cũ giữ nguyên)
   calcDifferenceBtn.addEventListener("click", () => {
     hideResult(differenceResult);
     let isValid = true;
@@ -281,11 +371,10 @@ document.addEventListener("DOMContentLoaded", () => {
       years--;
       months += 12;
     }
-    displayResult(
-      differenceResult,
-      `Khoảng cách là:\n- ${years} năm, ${months} tháng, và ${days} ngày.\n- Hoặc tổng cộng ${diffDays} ngày.`
-    );
+    const resultText = `Khoảng cách là:\n- ${years} năm, ${months} tháng, và ${days} ngày.\n- Hoặc tổng cộng ${diffDays} ngày.`;
+    displayResult(differenceResult, resultText, false, "Tính Khoảng Cách Ngày");
   });
+
   const handleDateManipulation = (operation) => {
     hideResult(addSubtractResult);
     const baseDate = parseDateString(baseDateEl.value);
@@ -310,12 +399,18 @@ document.addEventListener("DOMContentLoaded", () => {
       month: "long",
       day: "numeric",
     });
-    displayResult(addSubtractResult, `Ngày kết quả là: ${formattedDate}`);
+    displayResult(
+      addSubtractResult,
+      `Ngày kết quả là: ${formattedDate}`,
+      false,
+      "Thêm / Bớt Ngày"
+    );
   };
   addDateBtn.addEventListener("click", () => handleDateManipulation("add"));
   subtractDateBtn.addEventListener("click", () =>
     handleDateManipulation("subtract")
   );
+
   calcAgeBtn.addEventListener("click", () => {
     hideResult(ageResult);
     const birth = parseDateString(birthDateEl.value);
@@ -339,11 +434,10 @@ document.addEventListener("DOMContentLoaded", () => {
       years--;
       months += 12;
     }
-    displayResult(
-      ageResult,
-      `Tuổi của bạn là: ${years} năm, ${months} tháng, và ${days} ngày.`
-    );
+    const resultText = `Tuổi của bạn là: ${years} năm, ${months} tháng, và ${days} ngày.`;
+    displayResult(ageResult, resultText, false, "Tính Tuổi");
   });
+
   countdownBtn.addEventListener("click", () => {
     hideResult(countdownResult);
     const targetDate = parseDateString(eventDateEl.value);
@@ -357,19 +451,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const distance = targetDate.getTime() - new Date().getTime();
       if (distance < 0) {
         clearInterval(countdownInterval);
-        displayResult(countdownResult, `Sự kiện "${name}" đã diễn ra!`);
+        const resultText = `Sự kiện "${name}" đã diễn ra!`;
+        displayResult(countdownResult, resultText, false, "Đếm Ngược Sự Kiện");
         return;
       }
       const days = Math.floor(distance / 86400000);
       const hours = Math.floor((distance % 86400000) / 3600000);
       const minutes = Math.floor((distance % 3600000) / 60000);
       const seconds = Math.floor((distance % 60000) / 1000);
-      displayResult(
-        countdownResult,
-        `Còn: ${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây nữa là đến "${name}"`
-      );
+      const resultText = `Còn: ${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây nữa là đến "${name}"`;
+      // Không lưu countdown vào lịch sử vì nó thay đổi liên tục
+      displayResult(countdownResult, resultText, false);
     }, 1000);
   });
+
   findDayBtn.addEventListener("click", () => {
     hideResult(dayOfWeekResult);
     const date = parseDateString(findDayDateEl.value);
@@ -378,8 +473,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     const formattedDate = date.toLocaleDateString("vi-VN", { weekday: "long" });
-    displayResult(dayOfWeekResult, `Đó là ngày: ${formattedDate}`);
+    const resultText = `Đó là ngày: ${formattedDate}`;
+    displayResult(dayOfWeekResult, resultText, false, "Tìm Thứ Trong Tuần");
   });
+
   leapYearBtn.addEventListener("click", () => {
     hideResult(leapYearResult);
     const yearStr = yearInputEl.value;
@@ -389,9 +486,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const year = parseInt(yearStr, 10);
     const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-    displayResult(
-      leapYearResult,
-      `Năm ${year} ${isLeap ? "là" : "không phải là"} một năm nhuận.`
-    );
+    const resultText = `Năm ${year} ${
+      isLeap ? "là" : "không phải là"
+    } một năm nhuận.`;
+    displayResult(leapYearResult, resultText, false, "Kiểm Tra Năm Nhuận");
   });
+
+  // --- INITIAL LOAD ---
+  loadHistory();
 });
