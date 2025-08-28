@@ -23,10 +23,65 @@
     </header>
 
     <main class="container">
-      <!-- Cấu trúc .result đã được cập nhật ở tất cả các card -->
+      <!-- *** NEW FEATURE CARD *** -->
+      <div class="card" data-card="work-days">
+        <h2>Tính Ngày Làm Việc</h2>
+        <div class="input-group">
+          <label for="workStartDate">Ngày bắt đầu:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="workStartDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            />
+            <button class="btn-today" data-target="workStartDate">
+              Hôm nay
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group">
+          <label for="workEndDate">Ngày kết thúc:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="workEndDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            />
+            <button class="btn-today" data-target="workEndDate">Hôm nay</button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group">
+          <label for="holidays"
+            >Loại trừ các ngày lễ (mỗi ngày một dòng):</label
+          >
+          <textarea
+            id="holidays"
+            rows="4"
+            placeholder="Ví dụ:&#10;01/01/2025&#10;30/04/2025&#10;01/05/2025"
+          ></textarea>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button>
+          <button id="calcWorkDaysBtn" class="btn-primary">Tính toán</button>
+        </div>
+        <div class="result" id="workDaysResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+
+      <!-- Các card cũ giữ nguyên cấu trúc -->
       <div class="card" data-card="difference">
         <h2>Tính Khoảng Cách Giữa 2 Ngày</h2>
-        <!-- ... input groups ... -->
         <div class="input-group">
           <label for="startDate">Ngày bắt đầu:</label>
           <div class="input-with-button">
@@ -56,18 +111,16 @@
           <small class="error-message"></small>
         </div>
         <div class="button-group">
-          <button class="btn-secondary btn-clear">Xóa</button>
-          <button id="calcDifferenceBtn" class="btn-primary">Tính toán</button>
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="calcDifferenceBtn" class="btn-primary">Tính toán</button>
         </div>
         <div class="result" id="differenceResult">
-          <span class="result-text"></span>
-          <button class="btn-copy" data-tooltip="Sao chép"></button>
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
         </div>
       </div>
-
       <div class="card" data-card="add-subtract">
         <h2>Thêm / Bớt Ngày</h2>
-        <!-- ... input groups ... -->
         <div class="input-group">
           <label for="baseDate">Chọn một ngày:</label>
           <div class="input-with-button">
@@ -98,14 +151,12 @@
           ><button id="subtractDateBtn" class="btn-primary">Bớt (-)</button>
         </div>
         <div class="result" id="addSubtractResult">
-          <span class="result-text"></span>
-          <button class="btn-copy" data-tooltip="Sao chép"></button>
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
         </div>
       </div>
-
       <div class="card" data-card="age">
         <h2>Tính Tuổi</h2>
-        <!-- ... input groups ... -->
         <div class="input-group">
           <label for="birthDate">Nhập ngày sinh của bạn:</label>
           <div class="input-with-button">
@@ -125,14 +176,12 @@
           ><button id="calcAgeBtn" class="btn-primary">Tính Tuổi</button>
         </div>
         <div class="result" id="ageResult">
-          <span class="result-text"></span>
-          <button class="btn-copy" data-tooltip="Sao chép"></button>
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
         </div>
       </div>
-
       <div class="card" data-card="countdown">
         <h2>Đếm Ngược Sự Kiện</h2>
-        <!-- ... input groups ... -->
         <div class="input-group">
           <label for="eventName">Tên sự kiện:</label
           ><input
@@ -163,14 +212,12 @@
           </button>
         </div>
         <div class="result" id="countdownResult">
-          <span class="result-text"></span>
-          <button class="btn-copy" data-tooltip="Sao chép"></button>
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
         </div>
       </div>
-
       <div class="card" data-card="find-day">
         <h2>Tìm Thứ Trong Tuần</h2>
-        <!-- ... input groups ... -->
         <div class="input-group">
           <label for="findDayDate">Chọn một ngày:</label>
           <div class="input-with-button">
@@ -192,14 +239,12 @@
           ><button id="findDayBtn" class="btn-primary">Tìm Thứ</button>
         </div>
         <div class="result" id="dayOfWeekResult">
-          <span class="result-text"></span>
-          <button class="btn-copy" data-tooltip="Sao chép"></button>
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
         </div>
       </div>
-
       <div class="card" data-card="leap-year">
         <h2>Kiểm Tra Năm Nhuận</h2>
-        <!-- ... input groups ... -->
         <div class="input-group">
           <label for="yearInput">Nhập một năm:</label
           ><input
@@ -216,14 +261,13 @@
           ><button id="leapYearBtn" class="btn-primary">Kiểm tra</button>
         </div>
         <div class="result" id="leapYearResult">
-          <span class="result-text"></span>
-          <button class="btn-copy" data-tooltip="Sao chép"></button>
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
         </div>
       </div>
     </main>
 
     <footer>
-      <!-- UPDATED: Footer -->
       <p>
         Được thiết kế bởi
         <a

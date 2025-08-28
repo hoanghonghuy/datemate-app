@@ -216,6 +216,20 @@ footer {
 .btn-secondary:hover {
   background-color: var(--secondary-color-hover);
 }
+.input-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    font-family: 'Roboto', sans-serif;
+    resize: vertical; /* Cho phép người dùng thay đổi chiều cao */
+    min-height: 80px;
+}
+
 
 /* Result Box and NEW Copy Button Styles */
 .result {

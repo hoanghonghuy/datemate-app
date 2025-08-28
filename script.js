@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- NEW: THEME SWITCHER LOGIC ---
+  // --- THEME SWITCHER LOGIC ---
+  // ... (Giữ nguyên, không thay đổi)
   const themeToggle = document.getElementById("theme-toggle");
   const body = document.body;
   const applyTheme = (theme) => {
@@ -30,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- UI ENHANCEMENT & VALIDATION ---
+  // ... (Giữ nguyên, không thay đổi)
   const autoFormatDateInput = (event) => {
     const input = event.target;
     let value = input.value.replace(/\D/g, "");
@@ -56,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .forEach((input) => input.addEventListener("input", autoFormatDateInput));
 
   // --- HELPER FUNCTIONS ---
+  // ... (Giữ nguyên các hàm helper cũ)
   const parseDateString = (dateStr) => {
     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     const parts = dateStr.match(regex);
@@ -88,29 +91,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const errorElement = parent.querySelector(".error-message");
     if (errorElement) errorElement.textContent = "";
   };
-
-  // UPDATED: displayResult function
   const displayResult = (resultElement, message, isError = false) => {
     const textSpan = resultElement.querySelector(".result-text");
     textSpan.innerHTML = message.replace(/\n/g, "<br>");
     resultElement.className = "result visible";
-    if (isError) {
-      resultElement.classList.add("error");
-    }
+    if (isError) resultElement.classList.add("error");
   };
-
-  // UPDATED: hideResult function
   const hideResult = (resultElement) => {
     if (resultElement) {
       resultElement.classList.remove("visible");
       const textSpan = resultElement.querySelector(".result-text");
-      if (textSpan) {
-        textSpan.innerHTML = "";
-      }
+      if (textSpan) textSpan.innerHTML = "";
     }
   };
 
-  // --- ELEMENT SELECTION ---
+  // --- ELEMENT SELECTION (Thêm các element mới) ---
   const startDateEl = document.getElementById("startDate"),
     endDateEl = document.getElementById("endDate"),
     calcDifferenceBtn = document.getElementById("calcDifferenceBtn"),
@@ -135,13 +130,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const yearInputEl = document.getElementById("yearInput"),
     leapYearBtn = document.getElementById("leapYearBtn"),
     leapYearResult = document.getElementById("leapYearResult");
+  // *** NEW ELEMENTS FOR WORK DAYS ***
+  const workStartDateEl = document.getElementById("workStartDate"),
+    workEndDateEl = document.getElementById("workEndDate"),
+    holidaysEl = document.getElementById("holidays"),
+    calcWorkDaysBtn = document.getElementById("calcWorkDaysBtn"),
+    workDaysResult = document.getElementById("workDaysResult");
 
-  // --- GENERAL EVENT LISTENERS ---
+  // --- GENERAL EVENT LISTENERS (Cập nhật nút Clear) ---
   document.querySelectorAll(".btn-today").forEach((button) =>
     button.addEventListener("click", () => {
       const targetInput = document.getElementById(button.dataset.target);
       const today = new Date();
-      targetInput.value = today.toLocaleDate_String("vi-VN", {
+      targetInput.value = today.toLocaleDateString("vi-VN", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -149,10 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
       clearError(targetInput);
     })
   );
-  document.querySelectorAll(".btn-clear").forEach((button) =>
+  document.querySelectorAll(".btn-clear").forEach((button) => {
     button.addEventListener("click", () => {
       const card = button.closest(".card");
-      card.querySelectorAll("input, select").forEach((el) => {
+      // UPDATED: Thêm 'textarea' vào selector
+      card.querySelectorAll("input, select, textarea").forEach((el) => {
         if (el.type === "number") el.value = "1";
         else if (el.tagName.toLowerCase() === "select") el.selectedIndex = 0;
         else el.value = "";
@@ -161,22 +163,19 @@ document.addEventListener("DOMContentLoaded", () => {
       hideResult(card.querySelector(".result"));
       if (card.dataset.card === "countdown" && countdownInterval)
         clearInterval(countdownInterval);
-    })
-  );
+    });
+  });
   document
-    .querySelectorAll("input")
+    .querySelectorAll("input, textarea")
     .forEach((input) =>
       input.addEventListener("input", () => clearError(input))
     );
-
-  // UPDATED: COPY BUTTON LOGIC
-  document.querySelectorAll(".btn-copy").forEach((button) => {
+  document.querySelectorAll(".btn-copy").forEach((button) =>
     button.addEventListener("click", async () => {
       const resultBox = button.parentElement;
       const textToCopy = resultBox
         .querySelector(".result-text")
         .innerText.trim();
-
       if (textToCopy && navigator.clipboard) {
         try {
           await navigator.clipboard.writeText(textToCopy);
@@ -191,10 +190,67 @@ document.addEventListener("DOMContentLoaded", () => {
           button.setAttribute("data-tooltip", "Lỗi!");
         }
       }
-    });
+    })
+  );
+
+  // --- FEATURE LOGIC ---
+
+  // *** NEW FEATURE: WORKING DAYS CALCULATOR ***
+  calcWorkDaysBtn.addEventListener("click", () => {
+    hideResult(workDaysResult);
+    let isValid = true;
+    const start = parseDateString(workStartDateEl.value);
+    if (!start) {
+      showError(workStartDateEl, "Ngày bắt đầu không hợp lệ.");
+      isValid = false;
+    }
+    const end = parseDateString(workEndDateEl.value);
+    if (!end) {
+      showError(workEndDateEl, "Ngày kết thúc không hợp lệ.");
+      isValid = false;
+    }
+    if (!isValid) return;
+
+    if (start > end) {
+      showError(workEndDateEl, "Ngày kết thúc phải sau ngày bắt đầu.");
+      return;
+    }
+
+    // Xử lý danh sách ngày lễ
+    const holidayStrings = holidaysEl.value
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const holidaySet = new Set();
+    for (const str of holidayStrings) {
+      const holidayDate = parseDateString(str);
+      if (holidayDate) {
+        // Chuẩn hóa ngày về dạng YYYY-MM-DD để so sánh dễ dàng, tránh lỗi timezone
+        holidaySet.add(holidayDate.toISOString().split("T")[0]);
+      }
+    }
+
+    let workingDays = 0;
+    const currentDate = new Date(start);
+
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = holidaySet.has(currentDate.toISOString().split("T")[0]);
+
+      if (!isWeekend && !isHoliday) {
+        workingDays++;
+      }
+
+      // Chuyển sang ngày tiếp theo
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    displayResult(workDaysResult, `Có tổng cộng ${workingDays} ngày làm việc.`);
   });
 
-  // --- FEATURE LOGIC (No changes here, it will work with the updated helpers) ---
+  // ... (Toàn bộ logic của các feature cũ giữ nguyên)
   calcDifferenceBtn.addEventListener("click", () => {
     hideResult(differenceResult);
     let isValid = true;
