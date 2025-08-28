@@ -1,156 +1,240 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DateMate - Tiện Ích Tính Toán Ngày Tháng</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
-
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <header>
-        <h1>DateMate</h1>
-        <p>Trợ lý tính toán ngày tháng của bạn</p>
+      <div class="theme-switcher">
+        <input type="checkbox" id="theme-toggle" />
+        <label for="theme-toggle" class="slider"></label>
+      </div>
+      <h1>DateMate</h1>
+      <p>Trợ lý tính toán ngày tháng của bạn</p>
     </header>
 
     <main class="container">
+      <!-- Cấu trúc .result đã được cập nhật ở tất cả các card -->
+      <div class="card" data-card="difference">
+        <h2>Tính Khoảng Cách Giữa 2 Ngày</h2>
+        <!-- ... input groups ... -->
+        <div class="input-group">
+          <label for="startDate">Ngày bắt đầu:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="startDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="startDate">Hôm nay</button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group">
+          <label for="endDate">Ngày kết thúc:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="endDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="endDate">Hôm nay</button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button>
+          <button id="calcDifferenceBtn" class="btn-primary">Tính toán</button>
+        </div>
+        <div class="result" id="differenceResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
 
-        <!-- Tính khoảng cách ngày -->
-        <div class="card" data-card="difference">
-            <h2>Tính Khoảng Cách Giữa 2 Ngày</h2>
-            <div class="input-group">
-                <label for="startDate">Ngày bắt đầu:</label>
-                <div class="input-with-button">
-                    <input type="text" id="startDate" class="date-input" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
-                    <button class="btn-today" data-target="startDate">Hôm nay</button>
-                </div>
-                <small class="error-message"></small>
-            </div>
-            <div class="input-group">
-                <label for="endDate">Ngày kết thúc:</label>
-                <div class="input-with-button">
-                    <input type="text" id="endDate" class="date-input" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
-                    <button class="btn-today" data-target="endDate">Hôm nay</button>
-                </div>
-                <small class="error-message"></small>
-            </div>
-            <div class="button-group">
-                <button class="btn-secondary btn-clear">Xóa</button>
-                <button id="calcDifferenceBtn" class="btn-primary">Tính toán</button>
-            </div>
-            <div class="result" id="differenceResult"></div>
+      <div class="card" data-card="add-subtract">
+        <h2>Thêm / Bớt Ngày</h2>
+        <!-- ... input groups ... -->
+        <div class="input-group">
+          <label for="baseDate">Chọn một ngày:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="baseDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="baseDate">Hôm nay</button>
+          </div>
+          <small class="error-message"></small>
         </div>
+        <div class="input-group-inline">
+          <input type="number" id="numUnits" value="1" min="1" /><select
+            id="unit"
+          >
+            <option value="days">Ngày</option>
+            <option value="weeks">Tuần</option>
+            <option value="months">Tháng</option>
+            <option value="years">Năm</option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="addDateBtn" class="btn-primary">Thêm (+)</button
+          ><button id="subtractDateBtn" class="btn-primary">Bớt (-)</button>
+        </div>
+        <div class="result" id="addSubtractResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
 
-        <!-- Thêm/Bớt Ngày -->
-        <div class="card" data-card="add-subtract">
-            <h2>Thêm / Bớt Ngày</h2>
-            <div class="input-group">
-                <label for="baseDate">Chọn một ngày:</label>
-                <div class="input-with-button">
-                    <input type="text" id="baseDate" class="date-input" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
-                    <button class="btn-today" data-target="baseDate">Hôm nay</button>
-                </div>
-                <small class="error-message"></small>
-            </div>
-            <div class="input-group-inline">
-                 <input type="number" id="numUnits" value="1" min="1">
-                <select id="unit">
-                    <option value="days">Ngày</option>
-                    <option value="weeks">Tuần</option>
-                    <option value="months">Tháng</option>
-                    <option value="years">Năm</option>
-                </select>
-            </div>
-            <div class="button-group">
-                 <button class="btn-secondary btn-clear">Xóa</button>
-                 <button id="addDateBtn" class="btn-primary">Thêm (+)</button>
-                 <button id="subtractDateBtn" class="btn-primary">Bớt (-)</button>
-            </div>
-            <div class="result" id="addSubtractResult"></div>
+      <div class="card" data-card="age">
+        <h2>Tính Tuổi</h2>
+        <!-- ... input groups ... -->
+        <div class="input-group">
+          <label for="birthDate">Nhập ngày sinh của bạn:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="birthDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="birthDate">Hôm nay</button>
+          </div>
+          <small class="error-message"></small>
         </div>
-        
-        <!-- Tính Tuổi -->
-        <div class="card" data-card="age">
-            <h2>Tính Tuổi</h2>
-            <div class="input-group">
-                <label for="birthDate">Nhập ngày sinh của bạn:</label>
-                <div class="input-with-button">
-                    <input type="text" id="birthDate" class="date-input" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
-                    <button class="btn-today" data-target="birthDate">Hôm nay</button>
-                </div>
-                <small class="error-message"></small>
-            </div>
-            <div class="button-group">
-                <button class="btn-secondary btn-clear">Xóa</button>
-                <button id="calcAgeBtn" class="btn-primary">Tính Tuổi</button>
-            </div>
-            <div class="result" id="ageResult"></div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="calcAgeBtn" class="btn-primary">Tính Tuổi</button>
         </div>
+        <div class="result" id="ageResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
 
-        <!-- Đếm ngược sự kiện -->
-        <div class="card" data-card="countdown">
-            <h2>Đếm Ngược Sự Kiện</h2>
-            <div class="input-group">
-                <label for="eventName">Tên sự kiện:</label>
-                <input type="text" id="eventName" placeholder="Ví dụ: Tết Nguyên Đán" autocomplete="off">
-            </div>
-            <div class="input-group">
-                <label for="eventDate">Ngày diễn ra sự kiện:</label>
-                <div class="input-with-button">
-                    <input type="text" id="eventDate" class="date-input" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
-                    <button class="btn-today" data-target="eventDate">Hôm nay</button>
-                </div>
-                <small class="error-message"></small>
-            </div>
-            <div class="button-group">
-                <button class="btn-secondary btn-clear">Xóa</button>
-                <button id="countdownBtn" class="btn-primary">Bắt đầu đếm ngược</button>
-            </div>
-            <div class="result" id="countdownResult"></div>
+      <div class="card" data-card="countdown">
+        <h2>Đếm Ngược Sự Kiện</h2>
+        <!-- ... input groups ... -->
+        <div class="input-group">
+          <label for="eventName">Tên sự kiện:</label
+          ><input
+            type="text"
+            id="eventName"
+            placeholder="Ví dụ: Tết Nguyên Đán"
+            autocomplete="off"
+          />
         </div>
+        <div class="input-group">
+          <label for="eventDate">Ngày diễn ra sự kiện:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="eventDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="eventDate">Hôm nay</button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="countdownBtn" class="btn-primary">
+            Bắt đầu đếm ngược
+          </button>
+        </div>
+        <div class="result" id="countdownResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
 
-        <!-- Tìm Thứ Trong Tuần -->
-        <div class="card" data-card="find-day">
-            <h2>Tìm Thứ Trong Tuần</h2>
-            <div class="input-group">
-                <label for="findDayDate">Chọn một ngày:</label>
-                <div class="input-with-button">
-                    <input type="text" id="findDayDate" class="date-input" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off">
-                    <button class="btn-today" data-target="findDayDate">Hôm nay</button>
-                </div>
-                <small class="error-message"></small>
-            </div>
-            <div class="button-group">
-                <button class="btn-secondary btn-clear">Xóa</button>
-                <button id="findDayBtn" class="btn-primary">Tìm Thứ</button>
-            </div>
-            <div class="result" id="dayOfWeekResult"></div>
+      <div class="card" data-card="find-day">
+        <h2>Tìm Thứ Trong Tuần</h2>
+        <!-- ... input groups ... -->
+        <div class="input-group">
+          <label for="findDayDate">Chọn một ngày:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="findDayDate"
+              class="date-input"
+              placeholder="dd/mm/yyyy"
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="findDayDate">
+              Hôm nay
+            </button>
+          </div>
+          <small class="error-message"></small>
         </div>
-        
-        <!-- Kiểm tra năm nhuận -->
-        <div class="card" data-card="leap-year">
-            <h2>Kiểm Tra Năm Nhuận</h2>
-            <div class="input-group">
-                <label for="yearInput">Nhập một năm:</label>
-                <input type="text" id="yearInput" placeholder="VD: 2024" maxlength="4" inputmode="numeric" autocomplete="off">
-                <small class="error-message"></small>
-            </div>
-            <div class="button-group">
-                <button class="btn-secondary btn-clear">Xóa</button>
-                <button id="leapYearBtn" class="btn-primary">Kiểm tra</button>
-            </div>
-            <div class="result" id="leapYearResult"></div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="findDayBtn" class="btn-primary">Tìm Thứ</button>
         </div>
+        <div class="result" id="dayOfWeekResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
 
+      <div class="card" data-card="leap-year">
+        <h2>Kiểm Tra Năm Nhuận</h2>
+        <!-- ... input groups ... -->
+        <div class="input-group">
+          <label for="yearInput">Nhập một năm:</label
+          ><input
+            type="text"
+            id="yearInput"
+            placeholder="VD: 2024"
+            maxlength="4"
+            inputmode="numeric"
+            autocomplete="off"
+          /><small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="leapYearBtn" class="btn-primary">Kiểm tra</button>
+        </div>
+        <div class="result" id="leapYearResult">
+          <span class="result-text"></span>
+          <button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
     </main>
 
     <footer>
-        <p>Được thiết kế với ❤️. Sẵn sàng để triển khai trên GitHub Pages.</p>
+      <!-- UPDATED: Footer -->
+      <p>
+        Được thiết kế bởi
+        <a
+          href="https://github.com/hoanghonghuy"
+          target="_blank"
+          rel="noopener noreferrer"
+          >hoanghonghuy</a
+        >
+      </p>
     </footer>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

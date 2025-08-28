@@ -1,46 +1,61 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- UI ENHANCEMENT: AUTO-FORMAT AND VALIDATE DATE INPUT ---
-  const autoFormatDateInput = (event) => {
-    const input = event.target;
-    let value = input.value.replace(/\D/g, ""); // Chỉ giữ lại số
-
-    if (event.inputType === "deleteContentBackward") {
-      // Cho phép người dùng xóa tự do mà không cần kiểm tra
-      return;
+  // --- NEW: THEME SWITCHER LOGIC ---
+  const themeToggle = document.getElementById("theme-toggle");
+  const body = document.body;
+  const applyTheme = (theme) => {
+    if (theme === "dark") {
+      body.classList.add("dark-mode");
+      themeToggle.checked = true;
+    } else {
+      body.classList.remove("dark-mode");
+      themeToggle.checked = false;
     }
-
-    // --- VALIDATION LOGIC ---
-    // Kiểm tra và sửa ngày (dd)
-    if (value.length >= 2) {
-      let day = parseInt(value.substring(0, 2), 10);
-      if (day > 31) value = "31" + value.substring(2); // Nếu lớn hơn 31, sửa thành 31
-      if (day === 0) value = "01" + value.substring(2); // Nếu là 00, sửa thành 01
-    }
-
-    // Kiểm tra và sửa tháng (mm)
-    if (value.length >= 4) {
-      let month = parseInt(value.substring(2, 4), 10);
-      if (month > 12) value = value.substring(0, 2) + "12" + value.substring(4); // Nếu lớn hơn 12, sửa thành 12
-      if (month === 0)
-        value = value.substring(0, 2) + "01" + value.substring(4); // Nếu là 00, sửa thành 01
-    }
-
-    // --- FORMATTING LOGIC ---
-    if (value.length > 2) {
-      value = `${value.substring(0, 2)}/${value.substring(2)}`;
-    }
-    if (value.length > 5) {
-      value = `${value.substring(0, 5)}/${value.substring(5, 9)}`;
-    }
-
-    input.value = value;
   };
-
-  document.querySelectorAll(".date-input").forEach((input) => {
-    input.addEventListener("input", autoFormatDateInput);
+  const saveThemePreference = (theme) => {
+    localStorage.setItem("theme", theme);
+  };
+  const savedTheme = localStorage.getItem("theme");
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else if (prefersDark) {
+    applyTheme("dark");
+  }
+  themeToggle.addEventListener("change", () => {
+    const newTheme = themeToggle.checked ? "dark" : "light";
+    applyTheme(newTheme);
+    saveThemePreference(newTheme);
   });
 
-  // --- VALIDATION & HELPER FUNCTIONS (No changes below this line) ---
+  // --- UI ENHANCEMENT & VALIDATION ---
+  const autoFormatDateInput = (event) => {
+    const input = event.target;
+    let value = input.value.replace(/\D/g, "");
+    if (event.inputType === "deleteContentBackward") return;
+    if (value.length >= 2) {
+      let day = parseInt(value.substring(0, 2), 10);
+      if (day > 31) value = "31" + value.substring(2);
+      if (day === 0) value = "01" + value.substring(2);
+    }
+    if (value.length >= 4) {
+      let month = parseInt(value.substring(2, 4), 10);
+      if (month > 12) value = value.substring(0, 2) + "12" + value.substring(4);
+      if (month === 0)
+        value = value.substring(0, 2) + "01" + value.substring(4);
+    }
+    if (value.length > 2)
+      value = `${value.substring(0, 2)}/${value.substring(2)}`;
+    if (value.length > 5)
+      value = `${value.substring(0, 5)}/${value.substring(5, 9)}`;
+    input.value = value;
+  };
+  document
+    .querySelectorAll(".date-input")
+    .forEach((input) => input.addEventListener("input", autoFormatDateInput));
+
+  // --- HELPER FUNCTIONS ---
   const parseDateString = (dateStr) => {
     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     const parts = dateStr.match(regex);
@@ -73,16 +88,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const errorElement = parent.querySelector(".error-message");
     if (errorElement) errorElement.textContent = "";
   };
+
+  // UPDATED: displayResult function
   const displayResult = (resultElement, message, isError = false) => {
-    resultElement.innerHTML = message.replace(/\n/g, "<br>");
+    const textSpan = resultElement.querySelector(".result-text");
+    textSpan.innerHTML = message.replace(/\n/g, "<br>");
     resultElement.className = "result visible";
-    if (isError) resultElement.classList.add("error");
-  };
-  const hideResult = (resultElement) => {
-    if (resultElement) resultElement.classList.remove("visible");
+    if (isError) {
+      resultElement.classList.add("error");
+    }
   };
 
-  // --- ELEMENT SELECTION (No changes) ---
+  // UPDATED: hideResult function
+  const hideResult = (resultElement) => {
+    if (resultElement) {
+      resultElement.classList.remove("visible");
+      const textSpan = resultElement.querySelector(".result-text");
+      if (textSpan) {
+        textSpan.innerHTML = "";
+      }
+    }
+  };
+
+  // --- ELEMENT SELECTION ---
   const startDateEl = document.getElementById("startDate"),
     endDateEl = document.getElementById("endDate"),
     calcDifferenceBtn = document.getElementById("calcDifferenceBtn"),
@@ -108,12 +136,12 @@ document.addEventListener("DOMContentLoaded", () => {
     leapYearBtn = document.getElementById("leapYearBtn"),
     leapYearResult = document.getElementById("leapYearResult");
 
-  // --- GENERAL EVENT LISTENERS (No changes) ---
+  // --- GENERAL EVENT LISTENERS ---
   document.querySelectorAll(".btn-today").forEach((button) =>
     button.addEventListener("click", () => {
       const targetInput = document.getElementById(button.dataset.target);
       const today = new Date();
-      targetInput.value = today.toLocaleDateString("vi-VN", {
+      targetInput.value = today.toLocaleDate_String("vi-VN", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -141,7 +169,32 @@ document.addEventListener("DOMContentLoaded", () => {
       input.addEventListener("input", () => clearError(input))
     );
 
-  // --- FEATURE LOGIC (No changes) ---
+  // UPDATED: COPY BUTTON LOGIC
+  document.querySelectorAll(".btn-copy").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const resultBox = button.parentElement;
+      const textToCopy = resultBox
+        .querySelector(".result-text")
+        .innerText.trim();
+
+      if (textToCopy && navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          button.setAttribute("data-tooltip", "Đã sao chép!");
+          button.classList.add("show-tooltip");
+          setTimeout(() => {
+            button.classList.remove("show-tooltip");
+            button.setAttribute("data-tooltip", "Sao chép");
+          }, 2000);
+        } catch (err) {
+          console.error("Không thể sao chép: ", err);
+          button.setAttribute("data-tooltip", "Lỗi!");
+        }
+      }
+    });
+  });
+
+  // --- FEATURE LOGIC (No changes here, it will work with the updated helpers) ---
   calcDifferenceBtn.addEventListener("click", () => {
     hideResult(differenceResult);
     let isValid = true;
