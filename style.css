@@ -50,13 +50,15 @@ header {
   z-index: 1000;
   display: flex;
   align-items: center;
-  justify-content: center; /* Căn giữa tiêu đề */
+  justify-content: center;
   padding: 1rem 1.5rem;
   background-color: var(--primary-color);
   color: white;
-  min-height: 60px; /* Đảm bảo chiều cao tối thiểu */
+  min-height: 60px;
 }
-
+.header-title-container {
+  text-align: center;
+}
 header h1,
 header p {
   margin: 0;
@@ -69,20 +71,16 @@ header h1 {
 header p {
   font-size: 0.9rem;
   font-weight: 300;
-  display: none; /* Ẩn trên màn hình nhỏ */
+  display: none;
 }
 @media (min-width: 768px) {
   header p {
-    display: block; /* Hiện lại trên màn hình lớn hơn */
+    display: block;
   }
   header h1 {
     font-size: 1.8rem;
   }
 }
-.header-title-container {
-  text-align: center;
-}
-
 #menu-toggle-btn {
   position: absolute;
   top: 50%;
@@ -98,7 +96,6 @@ header p {
   width: 28px;
   height: 28px;
 }
-
 .header-controls {
   position: absolute;
   top: 50%;
@@ -108,7 +105,6 @@ header p {
   align-items: center;
   gap: 1rem;
 }
-
 #history-toggle-btn {
   background: transparent;
   border: none;
@@ -120,7 +116,6 @@ header p {
   width: 24px;
   height: 24px;
 }
-
 .theme-switcher input {
   display: none;
 }
@@ -165,7 +160,6 @@ header p {
   display: flex;
   flex-direction: column;
 }
-
 #nav-menu {
   left: 0;
   width: 280px;
@@ -175,7 +169,6 @@ header p {
 body.nav-open #nav-menu {
   transform: translateX(0);
 }
-
 #history-panel {
   right: 0;
   width: 320px;
@@ -184,7 +177,6 @@ body.nav-open #nav-menu {
 body.history-open #history-panel {
   transform: translateX(0);
 }
-
 #nav-menu ul,
 #history-list {
   list-style: none;
@@ -195,7 +187,6 @@ body.history-open #history-panel {
 #history-list {
   flex-grow: 1;
 }
-
 #nav-menu ul li a {
   display: block;
   padding: 1rem 1.5rem;
@@ -208,7 +199,6 @@ body.history-open #history-panel {
   background-color: var(--result-background);
   color: var(--primary-color);
 }
-
 #history-panel .panel-header {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
@@ -248,7 +238,6 @@ body.history-open #history-panel {
   margin-bottom: 0.25rem;
   font-weight: 500;
 }
-
 #overlay {
   position: fixed;
   top: 0;
@@ -458,6 +447,33 @@ body.history-open #overlay {
 .btn-copy.show-tooltip::after {
   opacity: 1;
   visibility: visible;
+}
+
+/* --- NEW: FORMAT CONVERTER LIST --- */
+#format-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.95rem;
+}
+#format-list li {
+  padding: 0.75rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+#format-list li:last-child {
+  border-bottom: none;
+}
+#format-list li strong {
+  font-weight: 500;
+  color: var(--muted-text-color);
+}
+#format-list li span {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  text-align: right;
 }
 
 /* --- FOOTER --- */

@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
     type = ""
   ) => {
     const textSpan = resultElement.querySelector(".result-text");
-    textSpan.innerHTML = message.replace(/\n/g, "<br>");
+    if (textSpan) textSpan.innerHTML = message.replace(/\n/g, "<br>");
     resultElement.className = "result visible";
     if (isError) {
       resultElement.classList.add("error");
@@ -203,6 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
       resultElement.classList.remove("visible");
       const textSpan = resultElement.querySelector(".result-text");
       if (textSpan) textSpan.innerHTML = "";
+      const formatList = resultElement.querySelector("#format-list");
+      if (formatList) formatList.innerHTML = "";
     }
   };
 
@@ -236,6 +238,9 @@ document.addEventListener("DOMContentLoaded", () => {
     holidaysEl = document.getElementById("holidays"),
     calcWorkDaysBtn = document.getElementById("calcWorkDaysBtn"),
     workDaysResult = document.getElementById("workDaysResult");
+  const converterDateEl = document.getElementById("converterDate"),
+    convertDateBtn = document.getElementById("convertDateBtn"),
+    converterResultEl = document.getElementById("converterResult");
 
   // --- GENERAL EVENT LISTENERS ---
   document.querySelectorAll(".btn-today").forEach((button) =>
@@ -293,6 +298,62 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // --- FEATURE LOGIC ---
+  convertDateBtn.addEventListener("click", () => {
+    hideResult(converterResultEl);
+    const date = parseDateString(converterDateEl.value);
+    if (!date) {
+      showError(converterDateEl, "Ngày không hợp lệ.");
+      return;
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const formats = [
+      { label: "ISO 8601 (Y-M-D)", value: `${year}-${month}-${day}` },
+      { label: "Kiểu Mỹ (M/D/Y)", value: `${month}/${day}/${year}` },
+      {
+        label: "Văn bản (Tiếng Việt)",
+        value: date.toLocaleDateString("vi-VN", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      },
+      {
+        label: "Văn bản (Tiếng Anh)",
+        value: date.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      },
+      {
+        label: "Rút gọn (Tiếng Anh)",
+        value: date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+      },
+    ];
+
+    const formatList = document.getElementById("format-list");
+    formatList.innerHTML = ""; // Clear previous results
+
+    formats.forEach((format) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${format.label}:</strong><span>${format.value}</span>`;
+      formatList.appendChild(li);
+    });
+
+    converterResultEl.classList.add("visible");
+    addToHistory("Chuyển Đổi Định Dạng", `Ngày gốc: ${converterDateEl.value}`);
+  });
+
   calcWorkDaysBtn.addEventListener("click", () => {
     hideResult(workDaysResult);
     let isValid = true;
@@ -340,7 +401,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "Tính Ngày Làm Việc"
     );
   });
-
   calcDifferenceBtn.addEventListener("click", () => {
     hideResult(differenceResult);
     let isValid = true;
@@ -374,7 +434,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultText = `Khoảng cách là:\n- ${years} năm, ${months} tháng, và ${days} ngày.\n- Hoặc tổng cộng ${diffDays} ngày.`;
     displayResult(differenceResult, resultText, false, "Tính Khoảng Cách Ngày");
   });
-
   const handleDateManipulation = (operation) => {
     hideResult(addSubtractResult);
     const baseDate = parseDateString(baseDateEl.value);
@@ -410,7 +469,6 @@ document.addEventListener("DOMContentLoaded", () => {
   subtractDateBtn.addEventListener("click", () =>
     handleDateManipulation("subtract")
   );
-
   calcAgeBtn.addEventListener("click", () => {
     hideResult(ageResult);
     const birth = parseDateString(birthDateEl.value);
@@ -437,7 +495,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultText = `Tuổi của bạn là: ${years} năm, ${months} tháng, và ${days} ngày.`;
     displayResult(ageResult, resultText, false, "Tính Tuổi");
   });
-
   countdownBtn.addEventListener("click", () => {
     hideResult(countdownResult);
     const targetDate = parseDateString(eventDateEl.value);
@@ -460,11 +517,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const minutes = Math.floor((distance % 3600000) / 60000);
       const seconds = Math.floor((distance % 60000) / 1000);
       const resultText = `Còn: ${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây nữa là đến "${name}"`;
-      // Không lưu countdown vào lịch sử vì nó thay đổi liên tục
       displayResult(countdownResult, resultText, false);
     }, 1000);
   });
-
   findDayBtn.addEventListener("click", () => {
     hideResult(dayOfWeekResult);
     const date = parseDateString(findDayDateEl.value);
@@ -476,7 +531,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultText = `Đó là ngày: ${formattedDate}`;
     displayResult(dayOfWeekResult, resultText, false, "Tìm Thứ Trong Tuần");
   });
-
   leapYearBtn.addEventListener("click", () => {
     hideResult(leapYearResult);
     const yearStr = yearInputEl.value;
