@@ -1,134 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
+  if (!document.getElementById("card-converter")) return;
+
+  if (typeof holidayLibrary === "undefined") {
+    console.error("Thư viện Ngày lễ (lunar-converter.js) chưa được tải.");
+    return;
+  }
+
   const body = document.body;
   const EVENT_NAME_KEY = "datemate_eventName";
+  const SELECTED_DATE_KEY = "selectedDate";
 
-  // --- NEW: TOAST NOTIFICATION HELPER ---
-  const showToast = (text, isError = false) => {
-    Toastify({
-      text: text,
-      duration: 3000,
-      close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "right", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      style: {
-        background: isError
-          ? "linear-gradient(to right, #ff5f6d, #ffc371)"
-          : "linear-gradient(to right, #00b09b, #96c93d)",
-      },
-    }).showToast();
-  };
-
-  // --- VIETNAM HOLIDAY LIBRARY (Remains the same) ---
-  const holidayLibrary = {
-    getTetNguyenDan: (year) => {
-      if (year < 1900 || year > 2100) return null;
-      const timezoneOffset = 7;
-      const el = [
-        2, 1, 6, 4, 2, 7, 5, 3, 1, 6, 4, 2, 7, 5, 3, 1, 7, 5, 3, 1, 6, 4, 2, 7,
-      ];
-      const jd =
-        (year - 1900) * 365 +
-        Math.floor((year - 1901) / 4) +
-        el[year - 1900] +
-        30;
-      const day = new Date(
-        (jd + 0.5 - timezoneOffset / 24) * 86400000 - 2209161600000
-      );
-      return day;
-    },
-    getVnHolidays: function (year) {
-      const tet = this.getTetNguyenDan(year);
-      if (!tet) return [];
-      const holidays = [
-        { name: `Tết Dương Lịch ${year}`, date: new Date(year, 0, 1) },
-        { name: `Tết Nguyên Đán ${year}`, date: tet },
-        {
-          name: `Mùng 2 Tết ${year}`,
-          date: new Date(tet.getTime() + 1 * 86400000),
-        },
-        {
-          name: `Mùng 3 Tết ${year}`,
-          date: new Date(tet.getTime() + 2 * 86400000),
-        },
-        {
-          name: `Mùng 4 Tết ${year}`,
-          date: new Date(tet.getTime() + 3 * 86400000),
-        },
-        {
-          name: `Mùng 5 Tết ${year}`,
-          date: new Date(tet.getTime() + 4 * 86400000),
-        },
-        {
-          name: `Giỗ Tổ Hùng Vương ${year}`,
-          date: new Date(tet.getTime() + 69 * 86400000),
-        },
-        {
-          name: `Ngày Giải phóng Miền Nam ${year}`,
-          date: new Date(year, 3, 30),
-        },
-        { name: `Ngày Quốc tế Lao động ${year}`, date: new Date(year, 4, 1) },
-        { name: `Ngày Quốc Khánh ${year}`, date: new Date(year, 8, 2) },
-        { name: `Nghỉ lễ Quốc Khánh ${year}`, date: new Date(year, 8, 1) },
-      ];
-      return holidays;
-    },
-  };
-
-  // --- AOS, THEME, NAV, SCROLL, HISTORY LOGIC (Remains the same) ---
-  AOS.init({ duration: 600, once: true, easing: "ease-in-out" });
-  const themeToggle = document.getElementById("theme-toggle");
-  const applyTheme = (theme) => {
-    if (theme === "dark") {
-      body.classList.add("dark-mode");
-      themeToggle.checked = true;
-    } else {
-      body.classList.remove("dark-mode");
-      themeToggle.checked = false;
-    }
-  };
-  const saveThemePreference = (theme) => {
-    localStorage.setItem("theme", theme);
-  };
-  const savedTheme = localStorage.getItem("theme");
-  const prefersDark =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-  if (savedTheme) {
-    applyTheme(savedTheme);
-  } else if (prefersDark) {
-    applyTheme("dark");
-  }
-  themeToggle.addEventListener("change", () => {
-    const newTheme = themeToggle.checked ? "dark" : "light";
-    applyTheme(newTheme);
-    saveThemePreference(newTheme);
-  });
-  const menuToggleBtn = document.getElementById("menu-toggle-btn");
-  const navMenu = document.getElementById("nav-menu");
-  const overlay = document.getElementById("overlay");
-  const openMenu = () => body.classList.add("nav-open");
-  const closeMenu = () => body.classList.remove("nav-open");
-  menuToggleBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    body.classList.contains("nav-open") ? closeMenu() : openMenu();
-  });
-  const scrollToTopBtn = document.getElementById("scroll-to-top-btn");
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 300) {
-      scrollToTopBtn.classList.add("visible");
-    } else {
-      scrollToTopBtn.classList.remove("visible");
-    }
-  });
-  scrollToTopBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
   const HISTORY_KEY = "datemate_history";
   let history = [];
   const historyToggleBtn = document.getElementById("history-toggle-btn");
   const historyList = document.getElementById("history-list");
   const clearHistoryBtn = document.getElementById("clear-history-btn");
+  const overlay = document.getElementById("overlay");
   const openHistory = () => body.classList.add("history-open");
   const closeHistory = () => body.classList.remove("history-open");
   const renderHistory = () => {
@@ -176,42 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
       renderHistory();
     }
   });
-  navMenu.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", closeMenu);
-  });
-  overlay.addEventListener("click", () => {
-    closeMenu();
-    closeHistory();
-  });
+  overlay.addEventListener("click", closeHistory);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (body.classList.contains("nav-open")) closeMenu();
-      if (body.classList.contains("history-open")) closeHistory();
-    }
-  });
-  flatpickr(".date-input", {
-    dateFormat: "d/m/Y",
-    locale: "vn",
-    allowInput: true,
+    if (e.key === "Escape" && body.classList.contains("history-open"))
+      closeHistory();
   });
 
-  // --- HELPER FUNCTIONS ---
-  const parseDateString = (dateStr) => {
-    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-    const parts = dateStr.match(regex);
-    if (!parts) return null;
-    const day = parseInt(parts[1], 10),
-      month = parseInt(parts[2], 10),
-      year = parseInt(parts[3], 10);
-    if (year < 1000 || year > 9999 || month === 0 || month > 12) return null;
-    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
-      daysInMonth[1] = 29;
-    }
-    if (day > 0 && day <= daysInMonth[month - 1])
-      return new Date(year, month - 1, day);
-    return null;
-  };
   const showError = (inputElement, message) => {
     inputElement.classList.add("invalid");
     const parent =
@@ -255,14 +112,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const getDateFromPicker = (element) =>
     element._flatpickr.selectedDates[0] || null;
 
-  // --- ELEMENT SELECTION ---
+  flatpickr(".date-input", {
+    dateFormat: "d/m/Y",
+    locale: "vn",
+    allowInput: true,
+  });
+
   const holidaySelectEl = document.getElementById("holiday-select");
   const excludeVnHolidaysEl = document.getElementById("exclude-vn-holidays");
   const holidayBlacklistContainer = document.getElementById(
     "holiday-blacklist-container"
   );
   const holidayBlacklistEl = document.getElementById("holiday-blacklist");
-  // ... all other element selections remain the same
   const startDateEl = document.getElementById("startDate"),
     endDateEl = document.getElementById("endDate"),
     calcDifferenceBtn = document.getElementById("calcDifferenceBtn"),
@@ -295,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
     convertDateBtn = document.getElementById("convertDateBtn"),
     converterResultEl = document.getElementById("converterResult");
 
-  // --- GENERAL EVENT LISTENERS (Updated .btn-copy) ---
   document.querySelectorAll(".btn-today").forEach((button) =>
     button.addEventListener("click", () => {
       const targetInput = document.getElementById(button.dataset.target);
@@ -303,6 +163,19 @@ document.addEventListener("DOMContentLoaded", () => {
         targetInput._flatpickr.setDate(new Date(), true);
       }
       clearError(targetInput);
+    })
+  );
+  document.querySelectorAll(".btn-get-date").forEach((button) =>
+    button.addEventListener("click", () => {
+      const savedDate = localStorage.getItem(SELECTED_DATE_KEY);
+      const targetInput = document.getElementById(button.dataset.target);
+      if (savedDate && targetInput) {
+        targetInput._flatpickr.setDate(savedDate, true, "d/m/Y");
+        window.showToast("Đã áp dụng ngày từ Lịch Vạn Niên!");
+        localStorage.removeItem(SELECTED_DATE_KEY);
+      } else {
+        window.showToast("Chưa có ngày nào được chọn từ Lịch Vạn Niên.", true);
+      }
     })
   );
   document.querySelectorAll(".btn-clear").forEach((button) => {
@@ -339,23 +212,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (textToCopy && navigator.clipboard) {
         try {
           await navigator.clipboard.writeText(textToCopy);
-          showToast("Đã sao chép vào clipboard!");
+          window.showToast("Đã sao chép vào clipboard!");
         } catch (err) {
-          showToast("Lỗi: Không thể sao chép.", true);
+          window.showToast("Lỗi: Không thể sao chép.", true);
           console.error("Không thể sao chép: ", err);
         }
       }
     })
   );
 
-  // --- HOLIDAY FEATURES LOGIC ---
   const populateHolidayDropdown = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const currentYear = today.getFullYear();
     const holidays = [
-      ...holidayLibrary.getVnHolidays(currentYear),
-      ...holidayLibrary.getVnHolidays(currentYear + 1),
+      ...window.holidayLibrary.getVnHolidays(currentYear),
+      ...window.holidayLibrary.getVnHolidays(currentYear + 1),
     ];
     const upcomingHolidays = holidays
       .filter((h) => h.date >= today)
@@ -371,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   holidaySelectEl.addEventListener("change", () => {
-    /* ... remains the same ... */ const selectedOption =
+    const selectedOption =
       holidaySelectEl.options[holidaySelectEl.selectedIndex];
     if (!selectedOption.value) return;
     const [year, month, day] = selectedOption.value.split("-");
@@ -379,7 +251,6 @@ document.addEventListener("DOMContentLoaded", () => {
     eventNameEl.value = selectedOption.textContent;
     eventDateEl._flatpickr.setDate(selectedDate, true);
   });
-
   const populateHolidayBlacklist = (start, end) => {
     holidayBlacklistEl.innerHTML = "";
     if (!start || !end || start > end) {
@@ -388,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const holidaySet = new Map();
     for (let year = start.getFullYear(); year <= end.getFullYear(); year++) {
-      holidayLibrary.getVnHolidays(year).forEach((h) => {
+      window.holidayLibrary.getVnHolidays(year).forEach((h) => {
         if (h.date >= start && h.date <= end) {
           const dateString = h.date.toISOString().split("T")[0];
           if (!holidaySet.has(dateString)) holidaySet.set(dateString, h);
@@ -399,7 +270,6 @@ document.addEventListener("DOMContentLoaded", () => {
       holidayBlacklistContainer.classList.remove("visible");
       return;
     }
-
     holidaySet.forEach((h) => {
       const item = document.createElement("div");
       item.className = "holiday-list-item";
@@ -420,16 +290,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   [workStartDateEl, workEndDateEl].forEach((el) => {
-    el._flatpickr.config.onChange.push(() => {
-      if (excludeVnHolidaysEl.checked)
-        populateHolidayBlacklist(
-          getDateFromPicker(workStartDateEl),
-          getDateFromPicker(workEndDateEl)
-        );
-    });
+    if (el._flatpickr) {
+      el._flatpickr.config.onChange.push(() => {
+        if (excludeVnHolidaysEl.checked)
+          populateHolidayBlacklist(
+            getDateFromPicker(workStartDateEl),
+            getDateFromPicker(workEndDateEl)
+          );
+      });
+    }
   });
 
-  // --- FEATURE LOGIC (Updated work-days calculation) ---
   calcWorkDaysBtn.addEventListener("click", () => {
     hideResult(workDaysResult);
     let isValid = true;
@@ -448,16 +319,13 @@ document.addEventListener("DOMContentLoaded", () => {
       showError(workEndDateEl, "Ngày kết thúc phải sau ngày bắt đầu.");
       return;
     }
-
     const holidaySet = new Set();
     if (excludeVnHolidaysEl.checked) {
-      // Lấy danh sách ngày lễ đã được chọn từ blacklist
       const selectedHolidays = holidayBlacklistEl.querySelectorAll(
         'input[type="checkbox"]:checked'
       );
       selectedHolidays.forEach((cb) => holidaySet.add(cb.value));
     }
-
     let workingDays = 0;
     const currentDate = new Date(start);
     while (currentDate <= end) {
@@ -476,9 +344,6 @@ document.addEventListener("DOMContentLoaded", () => {
       "Tính Ngày Làm Việc"
     );
   });
-
-  // All other feature logics remain the same
-  // ...
   convertDateBtn.addEventListener("click", () => {
     hideResult(converterResultEl);
     const date = getDateFromPicker(converterDateEl);
@@ -675,7 +540,6 @@ document.addEventListener("DOMContentLoaded", () => {
     displayResult(leapYearResult, resultText, false, "Kiểm Tra Năm Nhuận");
   });
 
-  // --- INITIAL LOAD ---
   const loadInitialData = () => {
     loadHistory();
     const savedEventName = localStorage.getItem(EVENT_NAME_KEY);

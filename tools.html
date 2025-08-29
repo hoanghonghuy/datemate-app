@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DateMate - Công Cụ Tính Toán</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E"
+    />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="main-nav">
+        <a href="index.html">Lịch Tháng</a>
+        <a href="tools.html" class="active">Công Cụ</a>
+      </nav>
+      <div class="header-title-container">
+        <h1>DateMate</h1>
+        <p>Lịch Vạn Niên & Tiện Ích Ngày Tháng</p>
+      </div>
+      <div class="header-controls">
+        <button id="history-toggle-btn" aria-label="Mở lịch sử">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zM11.89 3.354a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zM11.89 3.354a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zM12.873 4.93a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933z"
+            />
+            <path
+              d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"
+            />
+            <path
+              d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"
+            />
+          </svg>
+        </button>
+        <div class="theme-switcher">
+          <input type="checkbox" id="theme-toggle" /><label
+            for="theme-toggle"
+            class="slider"
+          ></label>
+        </div>
+      </div>
+    </header>
+    <aside id="history-panel">
+      <div class="panel-header">
+        <h2>Lịch Sử Tính Toán</h2>
+        <button id="clear-history-btn">Xóa tất cả</button>
+      </div>
+      <ul id="history-list"></ul>
+    </aside>
+    <div id="overlay"></div>
+    <main class="container">
+      <div
+        class="card"
+        id="card-converter"
+        data-card="converter"
+        data-aos="fade-up"
+      >
+        <h2>Bộ Chuyển Đổi Định Dạng Ngày</h2>
+        <div class="input-group">
+          <label for="converterDate">Nhập một ngày:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="converterDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="converterDate">
+              Hôm nay</button
+            ><button class="btn-get-date" data-target="converterDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="convertDateBtn" class="btn-primary">Chuyển đổi</button>
+        </div>
+        <div class="result" id="converterResult">
+          <ul id="format-list"></ul>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-countdown"
+        data-card="countdown"
+        data-aos="fade-up"
+        data-aos-delay="50"
+      >
+        <h2>Đếm Ngược Sự Kiện</h2>
+        <div class="input-group">
+          <label for="eventName">Tên sự kiện:</label
+          ><input
+            type="text"
+            id="eventName"
+            placeholder="Ví dụ: Tết Nguyên Đán"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-group">
+          <label for="holiday-select">Hoặc chọn nhanh ngày lễ sắp tới:</label
+          ><select id="holiday-select">
+            <option value="">-- Chọn một ngày lễ --</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="eventDate">Ngày diễn ra sự kiện:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="eventDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="eventDate">Hôm nay</button
+            ><button class="btn-get-date" data-target="eventDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="countdownBtn" class="btn-primary">
+            Bắt đầu đếm ngược
+          </button>
+        </div>
+        <div class="result" id="countdownResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-work-days"
+        data-card="work-days"
+        data-aos="fade-up"
+        data-aos-delay="100"
+      >
+        <h2>Tính Ngày Làm Việc</h2>
+        <div class="input-group">
+          <label for="workStartDate">Ngày bắt đầu:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="workStartDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="workStartDate">
+              Hôm nay</button
+            ><button class="btn-get-date" data-target="workStartDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group">
+          <label for="workEndDate">Ngày kết thúc:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="workEndDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="workEndDate">
+              Hôm nay</button
+            ><button class="btn-get-date" data-target="workEndDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group">
+          <div class="input-group-checkbox">
+            <input type="checkbox" id="exclude-vn-holidays" checked /><label
+              for="exclude-vn-holidays"
+              >Tự động loại trừ các ngày lễ của Việt Nam</label
+            >
+          </div>
+          <div id="holiday-blacklist-container">
+            <small>Bỏ chọn những ngày lễ bạn không muốn loại trừ:</small>
+            <div id="holiday-blacklist" class="holiday-list"></div>
+          </div>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="calcWorkDaysBtn" class="btn-primary">Tính toán</button>
+        </div>
+        <div class="result" id="workDaysResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-difference"
+        data-card="difference"
+        data-aos="fade-up"
+      >
+        <h2>Tính Khoảng Cách Giữa 2 Ngày</h2>
+        <div class="input-group">
+          <label for="startDate">Ngày bắt đầu:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="startDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="startDate">Hôm nay</button
+            ><button class="btn-get-date" data-target="startDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group">
+          <label for="endDate">Ngày kết thúc:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="endDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="endDate">Hôm nay</button
+            ><button class="btn-get-date" data-target="endDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="calcDifferenceBtn" class="btn-primary">Tính toán</button>
+        </div>
+        <div class="result" id="differenceResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-add-subtract"
+        data-card="add-subtract"
+        data-aos="fade-up"
+        data-aos-delay="50"
+      >
+        <h2>Thêm / Bớt Ngày</h2>
+        <div class="input-group">
+          <label for="baseDate">Chọn một ngày:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="baseDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="baseDate">Hôm nay</button
+            ><button class="btn-get-date" data-target="baseDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="input-group-inline">
+          <input type="number" id="numUnits" value="1" min="1" /><select
+            id="unit"
+          >
+            <option value="days">Ngày</option>
+            <option value="weeks">Tuần</option>
+            <option value="months">Tháng</option>
+            <option value="years">Năm</option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="addDateBtn" class="btn-primary">Thêm (+)</button
+          ><button id="subtractDateBtn" class="btn-primary">Bớt (-)</button>
+        </div>
+        <div class="result" id="addSubtractResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-age"
+        data-card="age"
+        data-aos="fade-up"
+        data-aos-delay="100"
+      >
+        <h2>Tính Tuổi</h2>
+        <div class="input-group">
+          <label for="birthDate">Nhập ngày sinh của bạn:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="birthDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="birthDate">Hôm nay</button
+            ><button class="btn-get-date" data-target="birthDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="calcAgeBtn" class="btn-primary">Tính Tuổi</button>
+        </div>
+        <div class="result" id="ageResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-find-day"
+        data-card="find-day"
+        data-aos="fade-up"
+      >
+        <h2>Tìm Thứ Trong Tuần</h2>
+        <div class="input-group">
+          <label for="findDayDate">Chọn một ngày:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="findDayDate"
+              class="date-input"
+              placeholder="Chọn hoặc nhập ngày..."
+              maxlength="10"
+              autocomplete="off"
+            /><button class="btn-today" data-target="findDayDate">
+              Hôm nay</button
+            ><button class="btn-get-date" data-target="findDayDate">
+              Lấy ngày từ Lịch
+            </button>
+          </div>
+          <small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="findDayBtn" class="btn-primary">Tìm Thứ</button>
+        </div>
+        <div class="result" id="dayOfWeekResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+      <div
+        class="card"
+        id="card-leap-year"
+        data-card="leap-year"
+        data-aos="fade-up"
+        data-aos-delay="50"
+      >
+        <h2>Kiểm Tra Năm Nhuận</h2>
+        <div class="input-group">
+          <label for="yearInput">Nhập một năm:</label
+          ><input
+            type="text"
+            id="yearInput"
+            placeholder="VD: 2024"
+            maxlength="4"
+            inputmode="numeric"
+            autocomplete="off"
+          /><small class="error-message"></small>
+        </div>
+        <div class="button-group">
+          <button class="btn-secondary btn-clear">Xóa</button
+          ><button id="leapYearBtn" class="btn-primary">Kiểm tra</button>
+        </div>
+        <div class="result" id="leapYearResult">
+          <span class="result-text"></span
+          ><button class="btn-copy" data-tooltip="Sao chép"></button>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <p>
+        Thiết kế bởi
+        <a
+          href="https://github.com/hoanghonghuy"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="github-link"
+          ><svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-github"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+            />
+          </svg>
+          hoanghonghuy</a
+        >
+      </p>
+    </footer>
+    <button id="scroll-to-top-btn" aria-label="Cuộn lên đầu trang">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"
+        />
+      </svg>
+    </button>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"
+    ></script>
+
+    <script src="assets/vendor/lunar-converter.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/tools.js"></script>
+  </body>
+</html>
