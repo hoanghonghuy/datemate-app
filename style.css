@@ -3,7 +3,6 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
 }
-
 :root {
   --primary-color: #007bff;
   --primary-color-hover: #0056b3;
@@ -20,7 +19,6 @@ html {
   --error-color: #dc3545;
   --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
-
 body.dark-mode {
   --primary-color: #0d6efd;
   --primary-color-hover: #0b5ed7;
@@ -33,7 +31,6 @@ body.dark-mode {
   --result-background: #343a40;
   --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 body {
   font-family: "Roboto", sans-serif;
   background-color: var(--background-color);
@@ -381,6 +378,21 @@ body.history-open #overlay {
 .btn-secondary:hover {
   background-color: var(--secondary-color-hover);
 }
+.input-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+.input-group-checkbox input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--primary-color);
+}
+.input-group-checkbox label {
+    margin: 0;
+    font-weight: normal;
+}
 
 /* --- RESULT & COPY BUTTON --- */
 .result {
@@ -449,7 +461,7 @@ body.history-open #overlay {
   visibility: visible;
 }
 
-/* --- NEW: FORMAT CONVERTER LIST --- */
+/* --- FORMAT CONVERTER LIST --- */
 #format-list {
   list-style: none;
   padding: 0;
@@ -493,6 +505,18 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+footer a.github-link {
+    color: #ffffff;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+footer a.github-link:hover {
+    opacity: 0.8;
+}
 
 /* --- SCROLL-TO-TOP BUTTON --- */
 #scroll-to-top-btn {
@@ -525,3 +549,97 @@ footer a:hover {
 #scroll-to-top-btn:hover {
   background-color: var(--primary-color-hover);
 }
+
+/* --- FLATPCIKR DARK MODE OVERRIDES --- */
+body.dark-mode .flatpickr-calendar {
+  background: #2c2c2c;
+  border-color: var(--border-color);
+  box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5);
+}
+body.dark-mode .flatpickr-months .flatpickr-month {
+  color: var(--text-color);
+}
+body.dark-mode .flatpickr-months .flatpickr-prev-month,
+body.dark-mode .flatpickr-months .flatpickr-next-month {
+  fill: var(--text-color);
+}
+body.dark-mode .flatpickr-months .flatpickr-prev-month:hover,
+body.dark-mode .flatpickr-months .flatpickr-next-month:hover {
+  fill: var(--primary-color);
+}
+body.dark-mode .flatpickr-weekday {
+  color: var(--muted-text-color);
+}
+body.dark-mode .flatpickr-day {
+  color: var(--text-color);
+}
+body.dark-mode .flatpickr-day:hover,
+body.dark-mode .flatpickr-day:focus {
+  background: var(--input-background);
+}
+body.dark-mode .flatpickr-day.today {
+  border-color: var(--primary-color-hover);
+}
+body.dark-mode .flatpickr-day.today:hover,
+body.dark-mode .flatpickr-day.today:focus {
+  background: var(--primary-color-hover);
+  color: white;
+}
+body.dark-mode .flatpickr-day.selected,
+body.dark-mode .flatpickr-day.startRange,
+body.dark-mode .flatpickr-day.endRange {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+body.dark-mode .numInput,
+body.dark-mode .numInputWrapper {
+  background: var(--input-background);
+  color: var(--text-color);
+}
+/* NEW: Dark mode style for select dropdown */
+body.dark-mode .input-group select {
+    background-color: var(--input-background);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+/* --- FORMS & BUTTONS (Additions) --- */
+.input-group-checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; cursor: pointer; }
+.input-group-checkbox input[type="checkbox"] { width: auto; accent-color: var(--primary-color); }
+.input-group-checkbox label { margin: 0; font-weight: normal; }
+body.dark-mode .input-group select { background-color: var(--input-background); color: var(--text-color); border-color: var(--border-color); }
+
+/* --- NEW: Holiday Blacklist Styles --- */
+#holiday-blacklist-container {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+    display: none; /* Hidden by default */
+}
+#holiday-blacklist-container.visible {
+    display: block;
+}
+#holiday-blacklist-container small {
+    font-size: 0.85rem;
+    color: var(--muted-text-color);
+}
+.holiday-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    padding-right: 10px; /* For scrollbar */
+}
+.holiday-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+}
+.holiday-list-item input {
+    width: auto;
+}
+.holiday-list-item label {
+    font-size: 0.9rem;
+    font-weight: normal;
+}
+
